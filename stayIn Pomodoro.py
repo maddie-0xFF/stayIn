@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
+#from tkinter import messagebox 
+#replaced, don't need this anymore
 from PIL import Image, ImageTk
 import platform
 import os
@@ -64,8 +65,8 @@ class PomodoroTimer:
         center_window(self.root)
         
         # timer variables
-        self.work_time = 25 * 60
-        self.break_time = 5 * 60
+        self.work_time = 5
+        self.break_time = 3
         self.total_cycles = 4
         self.current_cycle = 1
         self.is_working = True
@@ -203,7 +204,7 @@ class PomodoroTimer:
                 text="Time to chill! Press start when ready.",
                 fg="#CAD19F"
             )
-            messagebox.showinfo(
+            self.show_custom_message(
                 "You actually did it!", 
                 f"Nice job!\ncycle {self.current_cycle} completed.\n\nTake a 5-minute break"
             )
@@ -229,7 +230,7 @@ class PomodoroTimer:
                 text=f"Cycle {self.current_cycle} - Press start to focus!",
                 fg="#D8968F"
             )
-            messagebox.showinfo(
+            self.show_custom_message(
                 "Back to work!", 
                 f"{self.current_cycle} of {self.total_cycles}\n\n Keep going!"
             )
@@ -252,7 +253,7 @@ class PomodoroTimer:
             activebackground="#535231",
             command=self.reset_app
         )
-        messagebox.showinfo(
+        self.show_custom_message(
             ":DDDD", 
             "All cycles completed!\n\nGreat job!\n\nDrink water and rest!"
         )
@@ -281,7 +282,58 @@ class PomodoroTimer:
             font=("Arial", 14)
         )
     
+    def show_custom_message(self, title, message):
+      #This cutefy the messageboxes yeiiiii
+     popup = tk.Toplevel(self.root)
+     popup.title(title)
+     popup.geometry("400x250")
+     popup.configure(bg="#FAF8F1")
+     popup.resizable(False, False)
+     popup.update_idletasks()
+     x = (popup.winfo_screenwidth() // 2) - (200)
+     y = (popup.winfo_screenheight() // 2) - (125)
+     popup.geometry(f'400x250+{x}+{y}')
+    
+    # Content, and style, please don't miss these details future me 
+     title_label = tk.Label(
+        popup,
+        text=title,
+        font=("Arial", 20, "bold"),
+        bg="#FAF8F1",
+        fg="#535231"
+     )
+     title_label.pack(pady=20)
+    
+     message_label = tk.Label(
+        popup,
+        text=message,
+        font=("Arial", 14),
+        bg="#FAF8F1",
+        fg="#726759",
+        wraplength=350,
+        justify="center"
+     )
+     message_label.pack(pady=10)
+    
+     ok_button = tk.Button(
+        popup,
+        text="OK",
+        font=("Arial", 14, "bold"),
+        bg="#A2AC80",
+        fg="#FAF8F1",
+        activebackground="#919869",
+        command=popup.destroy,
+        width=10,
+        height=1,
+        cursor="hand2"
+     )
+     ok_button.pack(pady=20)
+    
+     popup.transient(self.root)
+     popup.grab_set()
+
     def show_image(self, image_key):
+
     #manage the state of the images
     #never used dictionaries before, just learned and wanted to try :3
         if self.images.get(image_key):
