@@ -31,8 +31,8 @@ def load_images():
         try:
             if os.path.exists(filename):
                 img = Image.open(filename)
-                img.thumbnail((250, 250), Image.Resampling.LANCZOS)
-                images[key] = CTkImage(light_image=img, dark_image=img, size=(250, 250))
+                img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+                images[key] = CTkImage(light_image=img, dark_image=img, size=(200, 200))
             else:
                 images[key] = None
                 print(f"'{filename}' not found.")
@@ -58,10 +58,20 @@ class PomodoroTimer:
     def __init__(self, root):
         self.root = root
         self.root.title("stayIn - Pomodoro Timer")
-        self.root.geometry("500x700")
-        self.root.resizable(False, False)
-        self.root.configure(fg_color="#6276A5")
+
+        # add trasparent color set up 
         self.root.overrideredirect(True)
+        transparent_color = self.root._apply_appearance_mode(['#f2f2f2','#000001'])
+        self.root.config(background=transparent_color)
+        self.root.attributes("-transparentcolor", transparent_color)
+
+        self.root.geometry("400x550")
+        self.root.resizable(True, True)
+        self.root.configure(fg_color="#6276A5")
+        
+
+        #store transparent color 
+        self.transparent_color = transparent_color
         
         center_window(self.root)
         
@@ -83,9 +93,25 @@ class PomodoroTimer:
         self.update_display()
         
     def create_widgets(self):
-     # main frame
-     title_bar = ctk.CTkFrame(self.root, fg_color="#B2CDD4", height=40)
+     # Title bar with rounded top corners
+     title_bar = ctk.CTkFrame(
+        self.root, 
+        corner_radius=12, 
+        fg_color="#B2CDD4", 
+        height=40,
+        background_corner_colors=(self.transparent_color, self.transparent_color, None, None)
+     )
      title_bar.pack(fill="x")
+     
+     # Main frame with straight top, rounded bottom corners  
+     main_frame = ctk.CTkFrame(
+        self.root, 
+        fg_color="#6276A5", 
+        corner_radius=12,
+        bg_color=self.transparent_color,
+        background_corner_colors=("#6276A5", "#6276A5", self.transparent_color, self.transparent_color)
+     )
+     main_frame.pack(expand=True, fill="both", padx=0, pady=0)
 
      # title text
      title_label = ctk.CTkLabel(
@@ -124,11 +150,10 @@ class PomodoroTimer:
         y = event.y_root - self.y
         self.root.geometry(f"+{x}+{y}")
 
+
      title_bar.bind("<Button-1>", start_move)
      title_bar.bind("<ButtonRelease-1>", stop_move)
      title_bar.bind("<B1-Motion>", on_motion)
-     main_frame = ctk.CTkFrame(self.root, fg_color="#6276A5", corner_radius=25)
-     main_frame.pack(expand=True, fill="both", padx=20, pady=20)
         
      self.timer_label = ctk.CTkLabel(
             main_frame,
@@ -432,10 +457,8 @@ def main():
    ctk.set_default_color_theme("blue")  
 
    root = ctk.CTk() 
-   root.geometry("500x700")  
+   root.geometry("400x550")  
    root.title("StayIn - Pomodoro Timer")
-
-   root.overrideredirect(True)
    app = PomodoroTimer(root)
    root.mainloop()
 
