@@ -1,6 +1,6 @@
 import tkinter as tk
-#from tkinter import messagebox 
-#replaced, don't need this anymore
+# from tkinter import messagebox 
+# replaced, don't need this anymore
 from PIL import Image, ImageTk
 import platform
 import os
@@ -17,7 +17,7 @@ def center_window(window):
 
 
 def load_images():
-#it loads and resize imgs, returns None in case of error
+# it loads and resize imgs, returns None in case of error
     images = {}
     image_files = {
         'inicio': 'inicio.jpg',
@@ -25,7 +25,7 @@ def load_images():
         'descanso': 'descanso.jpg',
         'completado': 'completado.jpg'
     }
-    #named keys so I can reference them later easily :3
+    # named keys so I can reference them later easily :3
 
     for key, filename in image_files.items():
         try:
@@ -43,8 +43,8 @@ def load_images():
 
 
 def play_sound():
-#sound alert, maybe adding my own sound later
-#tday Im inspired so..make it exist first xD
+# sound alert, maybe adding my own sound later
+# tday Im inspired so..make it exist first xD
     try:
         if platform.system() == "Windows":
             import winsound
@@ -61,6 +61,7 @@ class PomodoroTimer:
         self.root.geometry("500x700")
         self.root.resizable(False, False)
         self.root.configure(bg="#FAF8F1")
+        self.root.overrideredirect(True)  # remove window decorations
         
         center_window(self.root)
         
@@ -82,46 +83,89 @@ class PomodoroTimer:
         self.update_display()
         
     def create_widgets(self):
-        main_frame = tk.Frame(self.root, bg="#FAF8F1")
-        main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+     # main frame
+     title_bar = tk.Frame(self.root, bg="#A2AC80", height=40)
+     title_bar.pack(fill="x")
+
+     # title text
+     title_label = tk.Label(
+        title_bar,
+        text="stayIn - Pomodoro Timer",
+        font=("Arial", 12, "bold"),
+        bg="#A2AC80",
+        fg="#FAF8F1"
+     )
+     title_label.pack(side="left", padx=10, pady=10)
+     close_btn = tk.Button(
+        title_bar,
+        text="✕",
+        font=("Arial", 14, "bold"),
+        bg="#A2AC80",
+        fg="#FAF8F1",
+        activebackground="#919869",
+        bd=0,
+        cursor="hand2",
+        command=self.root.destroy
+     )
+     close_btn.pack(side="right", padx=10)
+
+     # this makes the window draggable
+     def start_move(event):
+        self.x = event.x
+        self.y = event.y
+
+     def stop_move(event):
+        self.x = None
+        self.y = None
+
+     def on_motion(event):
+        x = event.x_root - self.x
+        y = event.y_root - self.y
+        self.root.geometry(f"+{x}+{y}")
+
+     title_bar.bind("<Button-1>", start_move)
+     title_bar.bind("<ButtonRelease-1>", stop_move)
+     title_bar.bind("<B1-Motion>", on_motion)
+     main_frame = tk.Frame(self.root, bg="#FAF8F1")
+     main_frame.pack(expand=True, fill="both", padx=20, pady=20)
         
-        self.timer_label = tk.Label(
+     self.timer_label = tk.Label(
             main_frame,
             text="25:00",
             font=("Arial", 72, "bold"),
             bg="#FAF8F1",
             fg="#D8968F"
         )
-        self.timer_label.pack(pady=(20, 10))
+     self.timer_label.pack(pady=(20, 10))
         
-        self.status_label = tk.Label(
+     self.status_label = tk.Label(
             main_frame,
             text="1/4 - Focus",
             font=("Arial", 18),
             bg="#FAF8F1",
             fg="#535231"
         )
-        self.status_label.pack(pady=10)
+     self.status_label.pack(pady=10)
         
-        self.image_label = tk.Label(
+     self.image_label = tk.Label(
             main_frame,
             bg="#FAF8F1",
             text="inicio.jpg",
             font=("Arial", 14),
             fg="#726759"
         )
-        self.image_label.pack(pady=30)
-        
-        self.message_label = tk.Label(
+     self.image_label.pack(pady=30)
+     
+     self.message_label = tk.Label(
             main_frame,
             text="Press start to start! :D",
             font=("Arial", 14),
             bg="#FAF8F1",
             fg="#726759"
         )
-        self.message_label.pack(pady=10)
+     self.message_label.pack(pady=10)
         
-        self.action_button = tk.Button(
+     self.action_button = tk.Button(
             main_frame,
             text="Start",
             font=("Arial", 20, "bold"),
@@ -136,17 +180,17 @@ class PomodoroTimer:
             relief="raised",
             bd=3
         )
-        self.action_button.pack(pady=20)
+     self.action_button.pack(pady=20)
     
     def toggle_timer(self):
-    #this is supposed to start or stop the timer
+    # this is supposed to start or stop the timer
         if self.is_running:
             self.stop_timer()
         else:
             self.start_timer()
     
     def start_timer(self):
-    #start
+    # start
         self.is_running = True
         self.action_button.config(
             text="Stop", 
@@ -157,7 +201,7 @@ class PomodoroTimer:
         self.countdown()
     
     def stop_timer(self):
-    #stop
+    # stop
         self.is_running = False
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
@@ -168,7 +212,7 @@ class PomodoroTimer:
         )
     
     def countdown(self):
-    #It will count down the time
+    # it will count down the time
         if self.time_left > 0 and self.is_running:
             mins, secs = divmod(self.time_left, 60)
             time_format = f"{mins:02d}:{secs:02d}"
@@ -179,7 +223,7 @@ class PomodoroTimer:
             self.session_complete()
     
     def session_complete(self):
-    #manages a session completion
+    # manages a session completion
         self.is_running = False
         play_sound()
         
@@ -196,7 +240,7 @@ class PomodoroTimer:
         )
     
     def handle_work_complete(self):
-    #manages the end of a work session
+    # manages the end of a work session
         if self.current_cycle < self.total_cycles:
             self.is_working = False
             self.time_left = self.break_time
@@ -205,7 +249,7 @@ class PomodoroTimer:
                 fg="#CAD19F"
             )
             self.show_custom_message(
-                "You actually did it!", 
+                "Hooray!", 
                 f"Nice job!\ncycle {self.current_cycle} completed.\n\nTake a 5-minute break"
             )
         else:
@@ -215,13 +259,13 @@ class PomodoroTimer:
                 text="Last cycle done! Final 5-minute break.",
                 fg="#CAD19F"
             )
-            messagebox.showinfo(
+            self.show_custom_message(
                 "What a good job!", 
                 "Last cycle completed!\n\nFinal stretch!"
             )
     
     def handle_break_complete(self):
-    #manages the end of a break session
+    # manages the end of a break session
         if self.current_cycle < self.total_cycles:
             self.current_cycle += 1
             self.is_working = True
@@ -238,7 +282,7 @@ class PomodoroTimer:
             self.all_cycles_complete()
     
     def all_cycles_complete(self):
-     #manages the completion of all cycles
+    # manages the completion of all cycles
         self.show_image('completado')
         self.status_label.config(text="Yuppy!!! :D")
         self.timer_label.config(text="00:00")
@@ -255,11 +299,11 @@ class PomodoroTimer:
         )
         self.show_custom_message(
             ":DDDD", 
-            "All cycles completed!\n\nGreat job!\n\nDrink water and rest!"
+            "All cycles completed!\n\nGreat job!\n\nDrink some water and rest!"
         )
     
     def reset_app(self):
-    #it resets the app to initial state
+    # it resets the app to initial state
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
         
@@ -283,29 +327,49 @@ class PomodoroTimer:
         )
     
     def show_custom_message(self, title, message):
-      #This cutefy the messageboxes yeiiiii
+    # custom popup message
      popup = tk.Toplevel(self.root)
-     popup.title(title)
-     popup.geometry("400x250")
+     popup.overrideredirect(True)  
+     popup.geometry("400x280")
      popup.configure(bg="#FAF8F1")
-     popup.resizable(False, False)
+    
      popup.update_idletasks()
      x = (popup.winfo_screenwidth() // 2) - (200)
-     y = (popup.winfo_screenheight() // 2) - (125)
-     popup.geometry(f'400x250+{x}+{y}')
+     y = (popup.winfo_screenheight() // 2) - (140)
+     popup.geometry(f'400x280+{x}+{y}')
     
-    # Content, and style, please don't miss these details future me 
-     title_label = tk.Label(
-        popup,
+     title_bar = tk.Frame(popup, bg="#A2AC80", height=40)
+     title_bar.pack(fill="x")
+    
+     title_bar_label = tk.Label(
+        title_bar,
         text=title,
-        font=("Arial", 20, "bold"),
-        bg="#FAF8F1",
-        fg="#535231"
+        font=("Arial", 12, "bold"),
+        bg="#A2AC80",
+        fg="#FAF8F1"
      )
-     title_label.pack(pady=20)
+     title_bar_label.pack(side="left", padx=10, pady=10)
+    
+    # close button
+     close_btn = tk.Button(
+        title_bar,
+        text="✕",
+        font=("Arial", 14, "bold"),
+        bg="#A2AC80",
+        fg="#FAF8F1",
+        activebackground="#919869",
+        bd=0,
+        cursor="hand2",
+        command=popup.destroy
+     )
+     close_btn.pack(side="right", padx=10)
+    
+    # content
+     content_frame = tk.Frame(popup, bg="#FAF8F1")
+     content_frame.pack(fill="both", expand=True, padx=20, pady=20)
     
      message_label = tk.Label(
-        popup,
+        content_frame,
         text=message,
         font=("Arial", 14),
         bg="#FAF8F1",
@@ -313,10 +377,10 @@ class PomodoroTimer:
         wraplength=350,
         justify="center"
      )
-     message_label.pack(pady=10)
+     message_label.pack(pady=20)
     
      ok_button = tk.Button(
-        popup,
+        content_frame,
         text="OK",
         font=("Arial", 14, "bold"),
         bg="#A2AC80",
@@ -327,15 +391,15 @@ class PomodoroTimer:
         height=1,
         cursor="hand2"
      )
-     ok_button.pack(pady=20)
+     ok_button.pack(pady=10)
     
      popup.transient(self.root)
      popup.grab_set()
 
     def show_image(self, image_key):
 
-    #manage the state of the images
-    #never used dictionaries before, just learned and wanted to try :3
+    # manage the state of the images
+    # never used dictionaries before, just learned and wanted to try :3
         if self.images.get(image_key):
             self.image_label.config(image=self.images[image_key], text="")
         else:
@@ -353,7 +417,7 @@ class PomodoroTimer:
             )
     
     def update_display(self):
-    #updates the timer and status display
+    # updates the timer and status display
         mins, secs = divmod(self.time_left, 60)
         self.timer_label.config(text=f"{mins:02d}:{secs:02d}")
         
@@ -367,7 +431,7 @@ class PomodoroTimer:
             self.timer_label.config(fg="#CAD19F", bg="#FAF8F1")
             self.status_label.config(text=status_text)
             self.show_image('descanso')
-        #the img of the very beginning
+        # the img of the very beginning
         if (self.current_cycle == 1 and self.is_working and 
             not self.is_running and self.time_left == self.work_time):
             self.show_image('inicio')
