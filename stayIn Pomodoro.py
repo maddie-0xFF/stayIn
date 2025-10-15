@@ -76,8 +76,8 @@ class PomodoroTimer:
         center_window(self.root)
         
         # timer variables
-        self.work_time = 5
-        self.break_time = 3
+        self.work_time = 25 * 60
+        self.break_time = 5 * 60
         self.total_cycles = 4
         self.current_cycle = 1
         self.is_working = True
@@ -96,7 +96,7 @@ class PomodoroTimer:
      # Title bar with rounded top corners
      title_bar = ctk.CTkFrame(
         self.root, 
-        corner_radius=12, 
+        corner_radius=10, 
         fg_color="#B2CDD4", 
         height=40,
         background_corner_colors=(self.transparent_color, self.transparent_color, None, None)
